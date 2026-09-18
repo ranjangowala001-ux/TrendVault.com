@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendVault - Everything You Love, All in One Place</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-500 selection:text-white overflow-x-hidden">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Dynamic Overlay -->
+    <div id="body-overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-300">
+        <!-- Top Promo Bar -->
+        <div class="bg-brand-600 text-white px-4 py-2 text-xs md:text-sm text-center font-medium tracking-wide flex justify-between items-center relative overflow-hidden">
+            <div class="mx-auto flex items-center gap-2">
+                <span class="bg-white/20 px-2 py-0.5 rounded-full text-[10px] uppercase font-bold animate-pulse">Special Offer</span>
+                <span>Get 15% OFF on your first purchase! Use Code: <strong class="underline tracking-wider">FIRST15</strong></span>
+            </div>
+            <button class="absolute right-4 hover:opacity-80 hidden md:block" onclick="this.parentElement.style.display='none'"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Main Navigation -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between gap-4">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-2 shrink-0" onclick="resetFiltersAndHome()">
+                    <div class="bg-gradient-to-tr from-brand-600 to-violet-500 text-white p-2.5 rounded-xl shadow-md">
+                        <i class="fa-solid fa-vault text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-slate-950 to-brand-700 bg-clip-text text-transparent">TrendVault</span>
+                </a>
+
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-xl relative">
+                    <input type="text" id="desktop-search" placeholder="Search for products, categories, trends..." 
+                        class="w-full pl-5 pr-12 py-2.5 bg-slate-100 focus:bg-white border-none rounded-xl focus:ring-2 focus:ring-brand-500 transition duration-150 outline-none placeholder:text-slate-400 text-sm"
+                        oninput="handleSearch(this.value)">
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-600 transition">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+
+                <!-- Icons Menu -->
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button onclick="toggleMobileSearch()" class="md:hidden p-2 text-slate-600 hover:text-brand-600 rounded-lg hover:bg-slate-50 transition" title="Search">
+                        <i class="fa-solid fa-magnifying-glass text-xl"></i>
+                    </button>
+
+                    <button onclick="openOrderTrackingModal()" class="p-2 text-slate-600 hover:text-brand-600 rounded-lg hover:bg-slate-50 transition relative" title="Track Order">
+                        <i class="fa-solid fa-truck-fast text-xl"></i>
+                    </button>
+
+                    <button onclick="toggleWishlist()" class="p-2 text-slate-600 hover:text-brand-600 rounded-lg hover:bg-slate-50 transition relative" title="Wishlist">
+                        <i class="fa-regular fa-heart text-xl"></i>
+                        <span id="wishlist-badge" class="absolute top-0 right-0 bg-rose-500 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white scale-0 transition-transform duration-300">0</span>
+                    </button>
+
+                    <button onclick="toggleCart()" class="p-2 text-slate-600 hover:text-brand-600 rounded-lg hover:bg-slate-50 relative transition" title="Shopping Cart">
+                        <i class="fa-solid fa-bag-shopping text-xl"></i>
+                        <span id="cart-badge" class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-white scale-0 transition-transform duration-300">0</span>
+                    </button>
+
+                    <button onclick="openAuthModal()" class="p-2 text-slate-600 hover:text-brand-600 rounded-lg hover:bg-slate-50 transition" title="My Account">
+                        <i class="fa-regular fa-user text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar (Collapsible) -->
+            <div id="mobile-search-bar" class="hidden mt-4 relative md:hidden transition-all duration-300">
+                <input type="text" id="mobile-search" placeholder="Search for products..." 
+                    class="w-full pl-5 pr-12 py-2.5 bg-slate-100 focus:bg-white border-2 border-slate-100 rounded-xl focus:ring-2 focus:ring-brand-500 transition duration-150 outline-none text-sm"
+                    oninput="handleSearch(this.value)">
+                <button class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Horizontal Scrollable Category Ribbon -->
+        <nav class="border-t border-slate-100 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-start gap-4 overflow-x-auto py-3 no-scrollbar custom-scrollbar text-sm font-semibold text-slate-600 select-none">
+                    <button onclick="filterCategory('All')" class="category-pill active shrink-0 px-4 py-1.5 rounded-full bg-brand-50 text-brand-600 border border-brand-100 transition duration-200">
+                        <i class="fa-solid fa-border-all mr-1.5"></i> All Store
+                    </button>
+                    <button onclick="filterCategory('Fashion & Clothing')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-shirt mr-1.5 text-blue-500"></i> Fashion
+                    </button>
+                    <button onclick="filterCategory('Beauty & Personal Care')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-sparkles mr-1.5 text-pink-500"></i> Beauty
+                    </button>
+                    <button onclick="filterCategory('Jewellery & Accessories')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-gem mr-1.5 text-amber-500"></i> Accessories
+                    </button>
+                    <button onclick="filterCategory('Home & Kitchen')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-couch mr-1.5 text-teal-500"></i> Home
+                    </button>
+                    <button onclick="filterCategory('Electronics & Gadgets')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-laptop-code mr-1.5 text-indigo-500"></i> Gadgets
+                    </button>
+                    <button onclick="filterCategory('Kids')" class="category-pill shrink-0 px-4 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 border border-transparent transition duration-200">
+                        <i class="fa-solid fa-child-reaching mr-1.5 text-orange-500"></i> Kids
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN HOMEPAGE CONTENT -->
+    <main id="main-content" class="transition-all duration-300">
+        
+        <!-- HERO BANNER -->
+        <section id="hero-banner" class="relative bg-slate-950 overflow-hidden min-h-[500px] md:min-h-[600px] flex items-center justify-center">
+            <!-- Decorative Gradients -->
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10"></div>
+            <div class="absolute top-0 right-0 w-full md:w-1/2 h-full bg-cover bg-center opacity-60 md:opacity-90 transition-transform duration-1000 transform hover:scale-105" 
+                style="background-image: url('https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1200');">
+            </div>
+            <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-500/20 rounded-full filter blur-[120px]"></div>
+            <div class="absolute bottom-10 right-10 w-96 h-96 bg-violet-600/20 rounded-full filter blur-[120px]"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full py-16 md:py-24">
+                <div class="max-w-2xl text-white">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-500/20 border border-brand-500/30 text-brand-300 text-xs font-semibold tracking-wider uppercase mb-6">
+                        <i class="fa-solid fa-fire text-amber-400"></i> India's Premium Marketplace
+                    </span>
+                    <h1 class="text-4xl md:text-6xl font-black tracking-tight leading-none mb-6">
+                        Everything You Love,<br>
+                        <span class="bg-gradient-to-r from-brand-400 to-indigo-300 bg-clip-text text-transparent">All in One Place</span>
+                    </h1>
+                    <p class="text-base md:text-lg text-slate-300 mb-8 max-w-lg leading-relaxed">
+                        Fashion, Beauty, Jewellery, Home &amp; Gadgets — Discover Something New Every Day with TrendVault. High quality, premium values.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="scrollToProducts()" class="glow-button px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition duration-300 flex items-center justify-center gap-2 group shadow-lg">
+                            Shop Now 
+                            <i class="fa-solid fa-arrow-right transition-transform duration-300 group-hover:translate-x-1"></i>
+                        </button>
+                        <a href="#special-deals" class="px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-xl text-center transition duration-300 backdrop-blur-sm">
+                            View Hot Deals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHY SHOP WITH US SECTION -->
+        <section class="py-12 bg-white border-b border-slate-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div class="p-4 flex flex-col items-center">
+                        <div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-brand-600 mb-3 text-xl">
+                            <i class="fa-solid fa-truck"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm md:text-base">Free Delivery</h4>
+                        <p class="text-xs text-slate-400">On all orders above ₹499</p>
+                    </div>
+                    <div class="p-4 flex flex-col items-center">
+                        <div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-brand-600 mb-3 text-xl">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm md:text-base">7-Day Return</h4>
+                        <p class="text-xs text-slate-400">Easy &amp; hassle-free returns</p>
+                    </div>
+                    <div class="p-4 flex flex-col items-center">
+                        <div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-brand-600 mb-3 text-xl">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm md:text-base">Cash on Delivery</h4>
+                        <p class="text-xs text-slate-400">Pay cash right at your door</p>
+                    </div>
+                    <div class="p-4 flex flex-col items-center">
+                        <div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-brand-600 mb-3 text-xl">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-900 text-sm md:text-base">Secure checkout</h4>
+                        <p class="text-xs text-slate-400">100% safe online payment</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STORE SHELF & CATALOGUE -->
+        <section id="shop-catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
+            
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Sidebar / Desktop Filters -->
+                <aside class="w-full lg:w-64 shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm self-start sticky top-32">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                        <h3 class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-sliders text-brand-600"></i> Filters</h3>
+                        <button onclick="resetFilters()" class="text-xs text-brand-600 hover:underline">Reset All</button>
+                    </div>
+
+                    <!-- Category List Filters -->
+                    <div class="mb-6">
+                        <h4 class="text-xs uppercase tracking-wider font-extrabold text-slate-400 mb-3">Categories</h4>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="All" checked onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>All Categories</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Fashion & Clothing" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Fashion &amp; Apparel</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Beauty & Personal Care" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Beauty &amp; Care</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Jewellery & Accessories" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Accessories &amp; Gems</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Home & Kitchen" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Home &amp; Kitchen</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Electronics & Gadgets" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Electronics &amp; Gadgets</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                <input type="radio" name="cat-filter" value="Kids" onchange="filterCategory(this.value)" class="text-brand-600 focus:ring-brand-500 rounded-sm">
+                                <span>Kids &amp; Toys</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div class="mb-6">
+                        <h4 class="text-xs uppercase tracking-wider font-extrabold text-slate-400 mb-3">Price Range</h4>
+                        <div class="space-y-2">
+                            <input type="range" id="price-range" min="0" max="6000" step="100" value="6000" oninput="handlePriceRange(this.value)" class="w-full h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-brand-600">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>₹0</span>
+                                <span id="price-value" class="font-bold text-slate-800">Under ₹6,000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sorting options -->
+                    <div>
+                        <h4 class="text-xs uppercase tracking-wider font-extrabold text-slate-400 mb-3">Sort By</h4>
+                        <select id="sort-by" onchange="handleSort(this.value)" class="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="popularity">Popularity (Best Rating)</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="newest">New Arrivals</option>
+                        </select>
+                    </div>
+                </aside>
+
+                <!-- Products Grid Section -->
+                <div class="flex-1">
+                    <!-- Heading Controls -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                        <div>
+                            <h2 id="section-title" class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Trending Products</h2>
+                            <p class="text-sm text-slate-500">Browse current top recommendations in TrendVault</p>
+                        </div>
+                        <span id="results-count" class="bg-indigo-50 border border-indigo-100 text-brand-600 text-xs font-bold px-3 py-1.5 rounded-full">Showing 12 Products</span>
+                    </div>
+
+                    <!-- Products Grid -->
+                    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic JS Products Injected Here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPECIAL DEALS SECTION -->
+        <section id="special-deals" class="bg-gradient-to-tr from-brand-900 to-indigo-950 py-16 text-white my-12 relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="max-w-xl">
+                        <span class="bg-rose-500/20 border border-rose-500/30 text-rose-300 font-extrabold text-xs px-3 py-1.5 rounded-full uppercase tracking-wider mb-4 inline-block">Deal of the Day</span>
+                        <h2 class="text-3xl md:text-5xl font-black mb-4">Unbelievable Discounts on Best Sellers!</h2>
+                        <p class="text-indigo-200 text-sm md:text-base leading-relaxed mb-6">Explore unbeatable deals up to <span class="text-yellow-300 font-extrabold text-lg">55% OFF</span> on Premium Watches, Beauty Serums, Fashion Apparel &amp; more. Limited stock, hurry up!</p>
+                        
+                        <!-- Real Countdown Clock -->
+                        <div class="flex gap-4 mb-6">
+                            <div class="bg-white/10 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px]">
+                                <span id="countdown-hours" class="text-2xl font-black block">04</span>
+                                <span class="text-[10px] text-indigo-300 uppercase">Hours</span>
+                            </div>
+                            <div class="bg-white/10 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px]">
+                                <span id="countdown-mins" class="text-2xl font-black block">28</span>
+                                <span class="text-[10px] text-indigo-300 uppercase">Mins</span>
+                            </div>
+                            <div class="bg-white/10 px-4 py-3 rounded-xl border border-white/10 text-center min-w-[70px]">
+                                <span id="countdown-secs" class="text-2xl font-black block">54</span>
+                                <span class="text-[10px] text-indigo-300 uppercase">Secs</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative w-full max-w-sm shrink-0 flex justify-center">
+                        <div class="relative bg-white/5 border border-white/10 p-4 rounded-3xl backdrop-blur-md">
+                            <img src="https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&q=80&w=400" alt="Special Deal" class="rounded-2xl max-h-[300px] object-cover">
+                            <div class="absolute -top-3 -right-3 bg-rose-500 text-white font-black text-sm px-4 py-2 rounded-full shadow-lg">Save 50%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CUSTOMER REVIEWS -->
+        <section class="py-16 bg-slate-50 border-t border-slate-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-12">
+                    <h2 class="text-3xl font-extrabold text-slate-900">What Our Customers Say</h2>
+                    <p class="text-slate-500 mt-2">Loved by more than 50,000+ shoppers all over India.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Review 1 -->
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm relative">
+                        <span class="absolute top-6 right-8 text-brand-100 text-6xl font-serif">“</span>
+                        <div class="flex items-center gap-1.5 text-amber-400 mb-4 text-sm">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">"Amazing quality! Ordered the Vitamin C Serum and Rose Gold Watch together. Outstanding delivery speed within 2 days, and cash on delivery option made it super secure."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center font-bold text-brand-600 text-sm">AS</div>
+                            <div>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Aanya Sharma</h4>
+                                <p class="text-xs text-slate-400">Delhi, India</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 2 -->
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm relative">
+                        <span class="absolute top-6 right-8 text-brand-100 text-6xl font-serif">“</span>
+                        <div class="flex items-center gap-1.5 text-amber-400 mb-4 text-sm">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">"The Men's Cargo Pants fit perfectly and the quality of cotton is rich. Best part was checking out - used the code FIRST15 and received direct savings. Happy shopping experience."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center font-bold text-brand-600 text-sm">RP</div>
+                            <div>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Rahul Patel</h4>
+                                <p class="text-xs text-slate-400">Mumbai, India</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 3 -->
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm relative">
+                        <span class="absolute top-6 right-8 text-brand-100 text-6xl font-serif">“</span>
+                        <div class="flex items-center gap-1.5 text-amber-400 mb-4 text-sm">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-6 leading-relaxed">"Ordered kids dungarees and an automated water dispenser. Both arrived perfectly packaged. Standard delivery times are fast. Beautiful UI design makes shopping fun."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center font-bold text-brand-600 text-sm">PK</div>
+                            <div>
+                                <h4 class="font-extrabold text-slate-900 text-sm">Priyanka Krishnan</h4>
+                                <p class="text-xs text-slate-400">Bangalore, India</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEWSLETTER -->
+        <section class="bg-white py-16 border-t border-slate-100">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="inline-flex items-center justify-center h-16 w-16 bg-indigo-50 text-brand-600 text-2xl rounded-2xl mb-4">
+                    <i class="fa-regular fa-envelope-open"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Never Miss Any Drops or Sales</h3>
+                <p class="text-slate-500 mt-2 mb-8 max-w-md mx-auto text-sm md:text-base">Subscribe to get flash sales details, unique deals, and product updates right to your mailbox.</p>
+                
+                <form onsubmit="handleNewsletter(event)" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+                    <input type="email" required placeholder="Enter your email address" 
+                        class="flex-1 px-5 py-3 border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl outline-none text-slate-800 text-sm">
+                    <button type="submit" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm shadow-md hover:shadow-lg transition shrink-0">
+                        Join Vault
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PRODUCT DETAIL VIEW MODAL -->
+    <div id="product-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative border border-slate-100 flex flex-col md:flex-row">
+            <!-- Close Button -->
+            <button onclick="closeProductDetailModal()" class="absolute right-5 top-5 h-8 w-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Left: Gallery / Images -->
+            <div class="w-full md:w-1/2 p-6 md:p-8 bg-slate-50 flex flex-col justify-between">
+                <div class="relative w-full aspect-square rounded-2xl overflow-hidden bg-white border border-slate-200">
+                    <img id="detail-image" src="" alt="" class="w-full h-full object-cover">
+                    <span id="detail-discount-badge" class="absolute top-4 left-4 bg-rose-500 text-white font-black text-xs px-3 py-1.5 rounded-full uppercase tracking-wider"></span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-4">
+                    <div class="aspect-square rounded-lg border-2 border-brand-500 overflow-hidden cursor-pointer bg-white">
+                        <img id="thumb-1" src="" class="w-full h-full object-cover" onclick="swapDetailImage(this.src)">
+                    </div>
+                    <div class="aspect-square rounded-lg border border-slate-200 overflow-hidden cursor-pointer opacity-70 hover:opacity-100 bg-white">
+                        <img id="thumb-2" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover" onclick="swapDetailImage(this.src)">
+                    </div>
+                    <div class="aspect-square rounded-lg border border-slate-200 overflow-hidden cursor-pointer opacity-70 hover:opacity-100 bg-white">
+                        <img id="thumb-3" src="https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover" onclick="swapDetailImage(this.src)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Information & Actions -->
+            <div class="w-full md:w-1/2 p-6 md:p-8 flex flex-col justify-between">
+                <div>
+                    <!-- Breadcrumbs / Category -->
+                    <span id="detail-category" class="text-xs uppercase tracking-wider font-extrabold text-brand-600"></span>
+                    <h2 id="detail-title" class="text-2xl font-extrabold text-slate-900 mt-2 mb-3 leading-tight"></h2>
+                    
+                    <!-- Rating block -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="flex items-center text-amber-400 text-xs gap-0.5">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <span id="detail-rating" class="text-xs font-bold text-slate-700">4.5</span>
+                        <span class="text-xs text-slate-400">|</span>
+                        <span class="text-xs text-slate-400 underline">2,410 ratings</span>
+                    </div>
+
+                    <!-- Pricing block -->
+                    <div class="flex items-baseline gap-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <span id="detail-selling-price" class="text-3xl font-black text-slate-900"></span>
+                        <span id="detail-original-price" class="text-base text-slate-400 line-through"></span>
+                        <span id="detail-discount" class="text-emerald-600 text-sm font-bold"></span>
+                    </div>
+
+                    <!-- Description -->
+                    <p id="detail-desc" class="text-slate-600 text-sm mb-6 leading-relaxed"></p>
+
+                    <!-- Features bullets -->
+                    <div class="space-y-2 mb-6 border-t border-slate-100 pt-4">
+                        <div class="flex items-center gap-2 text-xs text-slate-600">
+                            <i class="fa-solid fa-truck-fast text-slate-400"></i>
+                            <span>Fast Delivery within <strong class="text-slate-800">2-3 Days</strong> available</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-600">
+                            <i class="fa-solid fa-money-bill-wave text-slate-400"></i>
+                            <span><strong class="text-slate-800">COD (Cash on Delivery)</strong> Option Available</span>
+                        </div>
+                    </div>
+
+                    <!-- Quantity Picker -->
+                    <div class="flex items-center gap-4 mb-6">
+                        <span class="text-sm font-bold text-slate-800">Quantity</span>
+                        <div class="flex items-center border border-slate-200 rounded-lg">
+                            <button onclick="changeQty(-1)" class="px-3 py-1 bg-slate-50 hover:bg-slate-100 font-bold transition text-slate-700">-</button>
+                            <span id="qty-selector" class="px-4 font-bold text-slate-800 text-sm">1</span>
+                            <button onclick="changeQty(1)" class="px-3 py-1 bg-slate-50 hover:bg-slate-100 font-bold transition text-slate-700">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Operations inside details -->
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                    <button id="add-to-cart-btn" class="py-3 px-4 border-2 border-brand-600 text-brand-600 font-bold rounded-xl text-sm hover:bg-indigo-50 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+                    </button>
+                    <button id="buy-now-btn" class="py-3 px-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                        <i class="fa-solid fa-bolt"></i> Buy Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART SIDEBAR DRAWER -->
+    <div id="cart-drawer" class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-100">
+        <!-- Drawer Header -->
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-brand-600"></i> Shopping Bag
+            </h3>
+            <button onclick="toggleCart()" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Content -->
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+            <!-- Dynamically injected cart rows -->
+        </div>
+
+        <!-- Coupon Application Section -->
+        <div class="p-6 bg-slate-50 border-t border-slate-100">
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="coupon-input" placeholder="Apply Promo Code (FIRST15)" class="flex-1 px-4 py-2 border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 bg-white rounded-lg outline-none text-xs text-slate-800">
+                <button onclick="applyCoupon()" class="px-4 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-xs transition">Apply</button>
+            </div>
+            <p id="coupon-message" class="text-[11px] font-semibold hidden"></p>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-6 border-t border-slate-100 bg-white space-y-4">
+            <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between text-slate-500">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">₹0</span>
+                </div>
+                <div id="cart-discount-row" class="flex justify-between text-emerald-600 hidden">
+                    <span>Discount (FIRST15 -15%)</span>
+                    <span id="cart-discount">-₹0</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Shipping Fee</span>
+                    <span id="cart-shipping" class="text-emerald-600 font-bold">FREE</span>
+                </div>
+                <div class="flex justify-between font-extrabold text-slate-900 text-base pt-1.5 border-t border-slate-100">
+                    <span>Estimated Total</span>
+                    <span id="cart-total">₹0</span>
+                </div>
+            </div>
+            <button onclick="proceedToCheckout()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-extrabold rounded-xl text-center transition shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                Secure Checkout <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- WISHLIST MODAL DRAWER -->
+    <div id="wishlist-drawer" class="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col border-l border-slate-100">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-heart text-rose-500"></i> My Wishlist
+            </h3>
+            <button onclick="toggleWishlist()" class="h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div id="wishlist-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+            <!-- Dynamically injected wishlist items -->
+        </div>
+    </div>
+
+    <!-- CHECKOUT WIZARD MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 relative">
+            <button onclick="closeCheckoutModal()" class="absolute right-5 top-5 h-8 w-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="p-8">
+                <h2 class="text-2xl font-black text-slate-900 mb-6">Complete Your Order</h2>
+                
+                <form id="checkout-form" onsubmit="handlePlaceOrder(event)" class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">First Name</label>
+                            <input type="text" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Last Name</label>
+                            <input type="text" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
+                            <input type="email" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                        <div class="col-span-2 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Phone Number (For Shipping Updates)</label>
+                            <input type="tel" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Delivery Address</label>
+                        <textarea required rows="3" placeholder="Apartment, Street Name, Landmark" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="col-span-3 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">City</label>
+                            <input type="text" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                        <div class="col-span-3 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">State</label>
+                            <input type="text" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                        <div class="col-span-3 sm:col-span-1">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">PIN Code</label>
+                            <input type="text" pattern="[0-9]{6}" required placeholder="6 Digits" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm text-slate-850">
+                        </div>
+                    </div>
+
+                    <!-- Payment Mode -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                        <h4 class="text-xs font-bold text-slate-500 uppercase mb-3">Select Payment Method</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 bg-white p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-500 transition">
+                                <input type="radio" name="payment-method" value="COD" checked class="text-brand-600 focus:ring-brand-500">
+                                <div>
+                                    <span class="text-sm font-extrabold text-slate-900 block">Cash on Delivery (COD)</span>
+                                    <span class="text-[11px] text-slate-500">Pay inside-cash upon receiving package securely. No extra charge.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 bg-white p-3 border border-slate-200 rounded-xl cursor-pointer hover:border-brand-500 transition opacity-80 hover:opacity-100">
+                                <input type="radio" name="payment-method" value="ONLINE" class="text-brand-600 focus:ring-brand-500">
+                                <div>
+                                    <span class="text-sm font-extrabold text-slate-900 block">Pay Online (UPI, Card, Netbanking)</span>
+                                    <span class="text-[11px] text-slate-500">Secured via trusted gateways like Razorpay &amp; Paytm. Get extra 5% cashback.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-500 text-white font-black rounded-xl text-center shadow-lg transition">
+                        Confirm &amp; Place Order (<span id="checkout-amount-display">₹0</span>)
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDER TRACKING MODAL -->
+    <div id="tracking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl p-6 relative border border-slate-100">
+            <button onclick="closeOrderTrackingModal()" class="absolute right-5 top-5 h-8 w-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-bold mb-4">Track Your Order</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Order ID</label>
+                    <input type="text" id="tracking-order-id" placeholder="e.g., TV-348259" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                </div>
+                <button onclick="handleTrackOrder()" class="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-sm transition">Find Status</button>
+                
+                <div id="tracking-status-display" class="hidden pt-4 border-t border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-full text-base">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400">Order ID found</span>
+                            <h4 class="font-bold text-sm text-slate-800">Status: <span class="text-brand-600">Dispatched &amp; In-Transit</span></h4>
+                            <p class="text-[11px] text-slate-500 mt-1">Your package is currently in Gurgaon hub. Estimated arrival is within 2 days.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT / AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-6 relative border border-slate-100">
+            <button onclick="closeAuthModal()" class="absolute right-5 top-5 h-8 w-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-black mb-1">Welcome to TrendVault</h3>
+            <p class="text-xs text-slate-400 mb-6">Create account or login to track lists &amp; coupons</p>
+            
+            <form onsubmit="handleAuthLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                    <input type="email" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Password</label>
+                    <input type="password" required class="w-full px-4 py-2.5 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm">
+                </div>
+                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm shadow-md transition">Log In / Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- POLICY / LEGAL MODAL -->
+    <div id="policy-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl relative border border-slate-100">
+            <button onclick="closePolicyModal()" class="sticky top-5 float-right mr-5 h-8 w-8 rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center justify-center transition z-20 shadow-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="p-8">
+                <h3 id="policy-modal-title" class="text-2xl font-black mb-4"></h3>
+                <div id="policy-modal-content" class="text-slate-600 text-sm leading-relaxed space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 pt-16 pb-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <!-- Brand -->
+            <div>
+                <a href="#" class="flex items-center gap-2 mb-4">
+                    <div class="bg-brand-600 text-white p-2 rounded-lg">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">TrendVault</span>
+                </a>
+                <p class="text-sm leading-relaxed mb-6">Your absolute ultimate marketplace for everyday premium products. Clothing, Personal Care, Gadgets &amp; kids needs. Discover authentic products, easy returns.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="h-10 w-10 bg-slate-800 hover:bg-brand-600 hover:text-white rounded-full flex items-center justify-center transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" class="h-10 w-10 bg-slate-800 hover:bg-brand-600 hover:text-white rounded-full flex items-center justify-center transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="h-10 w-10 bg-slate-800 hover:bg-brand-600 hover:text-white rounded-full flex items-center justify-center transition"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div>
+                <h4 class="text-white font-extrabold text-sm uppercase tracking-wider mb-4">Categories</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><button onclick="filterCategory('Fashion & Clothing')" class="hover:text-white transition">Fashion &amp; Clothing</button></li>
+                    <li><button onclick="filterCategory('Beauty & Personal Care')" class="hover:text-white transition">Beauty &amp; Personal Care</button></li>
+                    <li><button onclick="filterCategory('Jewellery & Accessories')" class="hover:text-white transition">Jewellery &amp; Accessories</button></li>
+                    <li><button onclick="filterCategory('Home & Kitchen')" class="hover:text-white transition">Home &amp; Kitchen</button></li>
+                    <li><button onclick="filterCategory('Electronics & Gadgets')" class="hover:text-white transition">Electronics &amp; Gadgets</button></li>
+                    <li><button onclick="filterCategory('Kids')" class="hover:text-white transition">Kids Section</button></li>
+                </ul>
+            </div>
+
+            <!-- Important Links -->
+            <div>
+                <h4 class="text-white font-extrabold text-sm uppercase tracking-wider mb-4">Useful Policies</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><button onclick="showPolicy('About Us')" class="hover:text-white transition block text-left">About TrendVault</button></li>
+                    <li><button onclick="showPolicy('Contact Us')" class="hover:text-white transition block text-left">Contact & Support</button></li>
+                    <li><button onclick="showPolicy('Privacy Policy')" class="hover:text-white transition block text-left">Privacy Policy</button></li>
+                    <li><button onclick="showPolicy('Terms & Conditions')" class="hover:text-white transition block text-left">Terms &amp; Conditions</button></li>
+                    <li><button onclick="showPolicy('Shipping Policy')" class="hover:text-white transition block text-left">Shipping Policy</button></li>
+                    <li><button onclick="showPolicy('Return/Refund Policy')" class="hover:text-white transition block text-left">Return/Refund Policy</button></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="text-white font-extrabold text-sm uppercase tracking-wider mb-4">Contact Desk</h4>
+                <p class="text-sm leading-relaxed mb-4">TrendVault Shopping Pvt. Ltd.<br>Connaught Place, New Delhi,<br>India - 110001</p>
+                <p class="text-sm mb-2"><i class="fa-regular fa-envelope text-brand-500 mr-2"></i> support@trendvault.in</p>
+                <p class="text-sm"><i class="fa-solid fa-phone text-brand-500 mr-2"></i> +91 1800 456 7890</p>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <span>&copy; 2024 TrendVault Online Marketplace. All rights reserved.</span>
+            <div class="flex items-center gap-2">
+                <span>Verified Partners:</span>
+                <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&q=80&w=150" class="h-6 object-contain rounded-md filter brightness-50">
+            </div>
+        </div>
+    </footer>
+
+    <!-- REALISTIC PRODUCTS DATABASE AND APP LOGIC -->
+    <script>
+        // Database of sample items for every category
+        const products = [
+            {
+                id: 1,
+                name: "Slim Fit Multi-Pocket Cargo Pants",
+                category: "Fashion & Clothing",
+                subCategory: "Cargo Pants",
+                originalPrice: 2499,
+                sellingPrice: 1299,
+                discount: "48% OFF",
+                rating: 4.6,
+                image: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&q=80&w=400",
+                desc: "Elevate your rugged street styling with our classic heavy-duty cotton cargos. Detailed with 6 practical pockets, premium steel buttons, and stretch waistbands.",
+                features: ["100% Breathable Cotton", "Multi-utility Cargo pockets", "Machine wash cold"]
+            },
+            {
+                id: 2,
+                name: "Elegant Floral Printed Georgette Saree",
+                category: "Fashion & Clothing",
+                subCategory: "Sarees",
+                originalPrice: 3999,
+                sellingPrice: 1899,
+                discount: "52% OFF",
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=400",
+                desc: "An absolutely stunning georgette saree printed with vibrant pastel patterns. Comes with customized velvet unstitched matching blouse material.",
+                features: ["Length: 5.5 Metres", "Soft, lightweight fabric", "Included blouse piece"]
+            },
+            {
+                id: 3,
+                name: "Pure Glow Vitamin C Hydrating Face Serum",
+                category: "Beauty & Personal Care",
+                subCategory: "Skincare",
+                originalPrice: 899,
+                sellingPrice: 499,
+                discount: "44% OFF",
+                rating: 4.7,
+                image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=400",
+                desc: "Formulated with 15% active Vitamin C and premium Hyaluronic Acid. Instantly targets pigmentation, dry skin layers, and brightens up complexion.",
+                features: ["Cruelty-free & Vegan", "Suitable for all skin types", "Dermatologically tested"]
+            },
+            {
+                id: 4,
+                name: "Rose Gold Minimalist Classic Quartz Watch",
+                category: "Jewellery & Accessories",
+                subCategory: "Watches",
+                originalPrice: 4999,
+                sellingPrice: 2499,
+                discount: "50% OFF",
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&q=80&w=400",
+                desc: "A breathtaking sleek rose-gold wristwatch representing understated luxury. Built with high precision Japanese movement mechanism.",
+                features: ["Water-resistant up to 30m", "Stainless steel mesh strap", "International Warranty Card included"]
+            },
+            {
+                id: 5,
+                name: "Aesthetic Handmade Ceramic Flower Vase",
+                category: "Home & Kitchen",
+                subCategory: "Home Decor",
+                originalPrice: 1499,
+                sellingPrice: 799,
+                discount: "46% OFF",
+                rating: 4.5,
+                image: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&q=80&w=400",
+                desc: "Perfect Nordic design element to spark aesthetic visual layouts inside your living rooms or office desks. Glazed sleek cream tone.",
+                features: ["Handcrafted earthen clay", "Scratch-resistant polished base", "Heights: 22 cm"]
+            },
+            {
+                id: 6,
+                name: "PureSound Pro Active Noise Cancelling Headphones",
+                category: "Electronics & Gadgets",
+                subCategory: "Headphones",
+                originalPrice: 5999,
+                sellingPrice: 3199,
+                discount: "46% OFF",
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=400",
+                desc: "Immerse into soundscapes using ultimate hybrid ANC tech. 40 hours long-lasting playbacks with ultimate ergonomic cushioning design.",
+                features: ["35dB Deep Active Noise Cancel", "Hi-Res Audio certification", "Blazing-fast charging support"]
+            },
+            {
+                id: 7,
+                name: "Kids Playful Cotton Dungaree Set",
+                category: "Kids",
+                subCategory: "Kids Clothing",
+                originalPrice: 1299,
+                sellingPrice: 699,
+                discount: "46% OFF",
+                rating: 4.4,
+                image: "https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&q=80&w=400",
+                desc: "Sourced with purely organic ultra-soft cotton threads to keep your child comfortable throughout playful sessions.",
+                features: ["No toxic dyes used", "Easy buckle release", "Soft wash compatibility"]
+            },
+            {
+                id: 8,
+                name: "Smart App-Controlled RGB LED Strip Lights",
+                category: "Electronics & Gadgets",
+                subCategory: "LED Lights",
+                originalPrice: 1199,
+                sellingPrice: 599,
+                discount: "50% OFF",
+                rating: 4.6,
+                image: "https://images.unsplash.com/photo-1565814636199-ae8133055c1c?auto=format&fit=crop&q=80&w=400",
+                desc: "Add amazing customized ambiance colors below cabinets, bed backings or gaming tables. Fully controllable via Android/iOS apps.",
+                features: ["16 Million RGB Colors", "Music sync automated feature", "Sticky high-grade self-adhesive back"]
+            },
+            {
+                id: 9,
+                name: "Non-Drying Smooth Velvet Liquid Lipstick",
+                category: "Beauty & Personal Care",
+                subCategory: "Makeup",
+                originalPrice: 599,
+                sellingPrice: 349,
+                discount: "41% OFF",
+                rating: 4.3,
+                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&q=80&w=400",
+                desc: "Lightweight, non-cracking matte pigment offering unmatched luxury vibes. Lasts up to 12 hours comfortably without smudging.",
+                features: ["Infused with Vitamin E oil", "100% Transfer-proof seal", "Beautiful rich plum shade tint"]
+            },
+            {
+                id: 10,
+                name: "Sparkling Diamond Cut Crystal Drop Earrings",
+                category: "Jewellery & Accessories",
+                subCategory: "Earrings",
+                originalPrice: 1799,
+                sellingPrice: 899,
+                discount: "50% OFF",
+                rating: 4.7,
+                image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=400",
+                desc: "An absolutely glowing designer piece with premium precision cut crystals to illuminate any look. Ideal for weddings and parties.",
+                features: ["Anti-allergy premium brass", "Coated with long-lasting polish", "Lightweight, comfortable hook"]
+            },
+            {
+                id: 11,
+                name: "Mini Rechargeable USB Food Chopper",
+                category: "Home & Kitchen",
+                subCategory: "Kitchen Tools",
+                originalPrice: 2199,
+                sellingPrice: 1199,
+                discount: "45% OFF",
+                rating: 4.4,
+                image: "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&q=80&w=400",
+                desc: "Avoid the mess of manuals! Chop onions, tomatoes, and vegetables in 10 seconds flat using steel stainless motor power.",
+                features: ["Safety lock mechanism", "300ml container volume", "Food-grade BPA free design"]
+            },
+            {
+                id: 12,
+                name: "Stem Educational Creative Building Blocks",
+                category: "Kids",
+                subCategory: "Toys",
+                originalPrice: 1899,
+                sellingPrice: 999,
+                discount: "47% OFF",
+                rating: 4.6,
+                image: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=80&w=400",
+                desc: "Nurture creativity. Beautifully robust blocks that support structure combinations. Develops motor skills and logical thinking.",
+                features: ["Includes 150 unique blocks", "Safe rounded corner finish", "Durable storage container box"]
+            }
+        ];
+
+        // Global State
+        let currentFilter = "All";
+        let maxPrice = 6000;
+        let sortBy = "popularity";
+        let searchQuery = "";
+        let cart = [];
+        let wishlist = [];
+        let activeProduct = null;
+        let appliedCoupon = null;
+
+        // On Page Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCount();
+            startCountdown();
+            loadState();
+        });
+
+        // Save State
+        function saveState() {
+            localStorage.setItem('tv_cart', JSON.stringify(cart));
+            localStorage.setItem('tv_wishlist', JSON.stringify(wishlist));
+        }
+
+        // Load State
+        function loadState() {
+            const savedCart = localStorage.getItem('tv_cart');
+            const savedWishlist = localStorage.getItem('tv_wishlist');
+            if (savedCart) cart = JSON.parse(savedCart);
+            if (savedWishlist) wishlist = JSON.parse(savedWishlist);
+            updateCartUI();
+            updateWishlistUI();
+        }
+
+        // Show Toast Notifications
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-xl shadow-xl border text-sm font-bold text-white transition-all duration-300 transform translate-y-2 opacity-0 ${
+                type === 'success' ? 'bg-emerald-600 border-emerald-700' : 'bg-slate-900 border-slate-950'
+            }`;
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-info'}"></i>
+                <span>${message}</span>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Trigger animation
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            // Disappear sequence
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Filter and Sorting Processing
+        function getFilteredProducts() {
+            let result = [...products];
+
+            if (currentFilter !== "All") {
+                result = result.filter(p => p.category === currentFilter);
+            }
+
+            result = result.filter(p => p.sellingPrice <= maxPrice);
+
+            if (searchQuery.trim() !== "") {
+                const query = searchQuery.toLowerCase().trim();
+                result = result.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query));
+            }
+
+            if (sortBy === "popularity") {
+                result.sort((a, b) => b.rating - a.rating);
+            } else if (sortBy === "price-low") {
+                result.sort((a, b) => a.sellingPrice - b.sellingPrice);
+            } else if (sortBy === "price-high") {
+                result.sort((a, b) => b.sellingPrice - a.sellingPrice);
+            } else if (sortBy === "newest") {
+                result.sort((a, b) => b.id - a.id);
+            }
+
+            return result;
+        }
+
+        // Render Product Cards
+        function renderProducts() {
+            const container = document.getElementById('products-grid');
+            const activeList = getFilteredProducts();
+            container.innerHTML = "";
+
+            if (activeList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center">
+                        <i class="fa-solid fa-ban text-4xl text-slate-300 mb-4 block"></i>
+                        <h3 class="font-extrabold text-slate-900 text-lg">No Products Found</h3>
+                        <p class="text-sm text-slate-400 mt-1">Try relaxing filters or search term to discover items.</p>
+                        <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-brand-600 text-white rounded-lg text-xs font-bold">Clear Filters</button>
+                    </div>
+                `;
+                return;
+            }
+
+            activeList.forEach(p => {
+                const isWishlisted = wishlist.includes(p.id);
+                const card = document.createElement('div');
+                card.className = "group relative bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <!-- Image Container -->
+                        <div class="relative overflow-hidden aspect-square bg-slate-50 border-b border-slate-50 cursor-pointer" onclick="openProductDetail(${p.id})">
+                            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <span class="absolute top-4 left-4 bg-rose-500 text-white font-black text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">${p.discount}</span>
+                            
+                            <!-- Wishlist Toggle -->
+                            <button onclick="event.stopPropagation(); toggleWishlistItem(${p.id})" class="absolute top-4 right-4 h-9 w-9 bg-white/90 backdrop-blur-sm text-slate-600 hover:text-rose-500 rounded-full flex items-center justify-center transition shadow-md">
+                                <i class="${isWishlisted ? 'fa-solid fa-heart text-rose-500' : 'fa-regular fa-heart'} text-sm"></i>
+                            </button>
+                        </div>
+
+                        <!-- Card Info -->
+                        <div class="p-5">
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-brand-600 block mb-1">${p.category}</span>
+                            <h3 class="font-bold text-slate-800 text-sm hover:text-brand-600 transition line-clamp-2 cursor-pointer" onclick="openProductDetail(${p.id})">${p.name}</h3>
+                            
+                            <!-- Ratings -->
+                            <div class="flex items-center gap-1 mt-2.5 text-xs text-amber-400">
+                                <i class="fa-solid fa-star"></i>
+                                <span class="text-slate-800 font-bold text-xs ml-1">${p.rating}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price and CTA -->
+                    <div class="px-5 pb-5 pt-2 border-t border-slate-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-lg font-black text-slate-900 block">₹${p.sellingPrice.toLocaleString('en-IN')}</span>
+                            <span class="text-xs text-slate-400 line-through">₹${p.originalPrice.toLocaleString('en-IN')}</span>
+                        </div>
+                        <button onclick="addToCartDirect(${p.id})" class="h-10 px-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow-sm">
+                            <i class="fa-solid fa-cart-shopping"></i> Add
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Filters Management
+        function filterCategory(cat) {
+            currentFilter = cat;
+            
+            // Sync radio button
+            const radios = document.getElementsByName('cat-filter');
+            radios.forEach(r => {
+                if(r.value === cat) r.checked = true;
+            });
+
+            // Update heading/pill classes
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                const text = pill.innerText.trim();
+                if ((cat === "All" && text.includes("All Store")) || 
+                    (cat === "Fashion & Clothing" && text.includes("Fashion")) ||
+                    (cat === "Beauty & Personal Care" && text.includes("Beauty")) ||
+                    (cat === "Jewellery & Accessories" && text.includes("Accessories")) ||
+                    (cat === "Home & Kitchen" && text.includes("Home")) ||
+                    (cat === "Electronics & Gadgets" && text.includes("Gadgets")) ||
+                    (cat === "Kids" && text.includes("Kids"))) {
+                    pill.classList.add('bg-brand-50', 'text-brand-600', 'border-brand-100');
+                    pill.classList.remove('hover:bg-slate-100', 'text-slate-600', 'border-transparent');
+                } else {
+                    pill.classList.remove('bg-brand-50', 'text-brand-600', 'border-brand-100');
+                    pill.classList.add('hover:bg-slate-100', 'text-slate-600', 'border-transparent');
+                }
+            });
+
+            document.getElementById('section-title').innerText = cat === "All" ? "Trending Products" : cat;
+            renderProducts();
+            updateCount();
+        }
+
+        function handlePriceRange(val) {
+            maxPrice = parseInt(val);
+            document.getElementById('price-value').innerText = `Under ₹${maxPrice.toLocaleString('en-IN')}`;
+            renderProducts();
+            updateCount();
+        }
+
+        function handleSort(val) {
+            sortBy = val;
+            renderProducts();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            // Sync search inputs
+            document.getElementById('desktop-search').value = val;
+            document.getElementById('mobile-search').value = val;
+            renderProducts();
+            updateCount();
+        }
+
+        function updateCount() {
+            const count = getFilteredProducts().length;
+            document.getElementById('results-count').innerText = `Showing ${count} Product${count === 1 ? '' : 's'}`;
+        }
+
+        function resetFilters() {
+            currentFilter = "All";
+            maxPrice = 6000;
+            sortBy = "popularity";
+            searchQuery = "";
+            
+            document.getElementById('desktop-search').value = "";
+            document.getElementById('mobile-search').value = "";
+            document.getElementById('price-range').value = 6000;
+            document.getElementById('price-value').innerText = "Under ₹6,000";
+            document.getElementById('sort-by').value = "popularity";
+
+            filterCategory("All");
+        }
+
+        function resetFiltersAndHome() {
+            resetFilters();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToProducts() {
+            document.getElementById('shop-catalog').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Product Detail Modal management
+        function openProductDetail(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+            activeProduct = p;
+
+            document.getElementById('detail-image').src = p.image;
+            document.getElementById('detail-discount-badge').innerText = p.discount;
+            document.getElementById('detail-category').innerText = p.category;
+            document.getElementById('detail-title').innerText = p.name;
+            document.getElementById('detail-rating').innerText = p.rating;
+            document.getElementById('detail-selling-price').innerText = `₹${p.sellingPrice.toLocaleString('en-IN')}`;
+            document.getElementById('detail-original-price').innerText = `₹${p.originalPrice.toLocaleString('en-IN')}`;
+            document.getElementById('detail-discount').innerText = p.discount;
+            document.getElementById('detail-desc').innerText = p.desc;
+            
+            // Set up thumbnail previews
+            document.getElementById('thumb-1').src = p.image;
+
+            // Quantity reset
+            document.getElementById('qty-selector').innerText = "1";
+
+            // Bind actions
+            document.getElementById('add-to-cart-btn').onclick = () => addToCart(p.id, parseInt(document.getElementById('qty-selector').innerText));
+            document.getElementById('buy-now-btn').onclick = () => {
+                addToCart(p.id, parseInt(document.getElementById('qty-selector').innerText));
+                closeProductDetailModal();
+                toggleCart(true); // Open Cart Drawer instantly
+            };
+
+            // Display
+            document.getElementById('product-detail-modal').classList.remove('hidden');
+            document.getElementById('body-overlay').classList.remove('hidden');
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById('product-detail-modal').classList.add('hidden');
+            document.getElementById('body-overlay').classList.add('hidden');
+            activeProduct = null;
+        }
+
+        function swapDetailImage(src) {
+            document.getElementById('detail-image').src = src;
+        }
+
+        function changeQty(dir) {
+            let el = document.getElementById('qty-selector');
+            let current = parseInt(el.innerText);
+            current = Math.max(1, current + dir);
+            el.innerText = current;
+        }
+
+        // Add to Cart Handlers
+        function addToCartDirect(id) {
+            addToCart(id, 1);
+        }
+
+        function addToCart(id, qty = 1) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            const existingItem = cart.find(item => item.product.id === id);
+            if (existingItem) {
+                existingItem.quantity += qty;
+            } else {
+                cart.push({ product: p, quantity: qty });
+            }
+
+            saveState();
+            updateCartUI();
+            showToast(`${p.name} added to Bag!`);
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = "";
+
+            let totalQty = 0;
+            let subtotal = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center py-16">
+                        <i class="fa-solid fa-bag-shopping text-5xl text-slate-200 mb-4"></i>
+                        <h4 class="font-extrabold text-slate-800 text-base">Your Bag is Empty</h4>
+                        <p class="text-xs text-slate-400 max-w-[200px] mt-1">Add items from our premium catalog to proceed checkout.</p>
+                    </div>
+                `;
+                document.getElementById('cart-badge').classList.add('scale-0');
+            } else {
+                document.getElementById('cart-badge').classList.remove('scale-0');
+
+                cart.forEach((item, index) => {
+                    totalQty += item.quantity;
+                    const itemTotal = item.product.sellingPrice * item.quantity;
+                    subtotal += itemTotal;
+
+                    const row = document.createElement('div');
+                    row.className = "flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100 relative group";
+                    row.innerHTML = `
+                        <img src="${item.product.image}" alt="" class="h-16 w-16 rounded-xl object-cover border bg-white shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs text-slate-850 truncate">${item.product.name}</h4>
+                            <span class="text-xs font-black text-slate-900 block mt-1">₹${item.product.sellingPrice.toLocaleString('en-IN')} <span class="text-slate-400 font-normal">x ${item.quantity}</span></span>
+                            
+                            <!-- Internal row quantity adjusters -->
+                            <div class="flex items-center mt-2 gap-2">
+                                <button onclick="adjustCartQty(${index}, -1)" class="h-5 w-5 bg-white border rounded flex items-center justify-center text-xs font-bold hover:bg-slate-100">-</button>
+                                <span class="text-xs font-bold">${item.quantity}</span>
+                                <button onclick="adjustCartQty(${index}, 1)" class="h-5 w-5 bg-white border rounded flex items-center justify-center text-xs font-bold hover:bg-slate-100">+</button>
+                            </div>
+                        </div>
+                        <button onclick="removeCartItem(${index})" class="text-slate-400 hover:text-rose-500 transition absolute right-3 top-3">
+                            <i class="fa-regular fa-trash-can text-sm"></i>
+                        </button>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+
+            document.getElementById('cart-badge').innerText = totalQty;
+            document.getElementById('cart-subtotal').innerText = `₹${subtotal.toLocaleString('en-IN')}`;
+
+            // Calculate discounts if code applied
+            let discount = 0;
+            if (appliedCoupon === "FIRST15") {
+                discount = Math.floor(subtotal * 0.15);
+                document.getElementById('cart-discount-row').classList.remove('hidden');
+                document.getElementById('cart-discount').innerText = `-₹${discount.toLocaleString('en-IN')}`;
+            } else {
+                document.getElementById('cart-discount-row').classList.add('hidden');
+            }
+
+            const total = subtotal - discount;
+            document.getElementById('cart-total').innerText = `₹${total.toLocaleString('en-IN')}`;
+            document.getElementById('checkout-amount-display').innerText = `₹${total.toLocaleString('en-IN')}`;
+        }
+
+        function adjustCartQty(index, dir) {
+            cart[index].quantity += dir;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            saveState();
+            updateCartUI();
+        }
+
+        function removeCartItem(index) {
+            const name = cart[index].product.name;
+            cart.splice(index, 1);
+            saveState();
+            updateCartUI();
+            showToast(`${name} removed from bag.`, 'info');
+        }
+
+        // Apply Coupon Codes
+        function applyCoupon() {
+            const input = document.getElementById('coupon-input').value.toUpperCase().trim();
+            const msg = document.getElementById('coupon-message');
+            
+            if (input === "FIRST15") {
+                appliedCoupon = "FIRST15";
+                msg.innerText = "Coupon FIRST15 Applied Successfully! 15% OFF Saved.";
+                msg.className = "text-[11px] font-bold text-emerald-600 block";
+                updateCartUI();
+                showToast("Coupon FIRST15 Applied!");
+            } else {
+                msg.innerText = "Invalid or Expired Coupon Code.";
+                msg.className = "text-[11px] font-bold text-rose-500 block";
+                appliedCoupon = null;
+                updateCartUI();
+            }
+        }
+
+        // Cart Drawer Control
+        function toggleCart(forceOpen = false) {
+            const drawer = document.getElementById('cart-drawer');
+            const overlay = document.getElementById('body-overlay');
+            const isOpen = !drawer.classList.contains('translate-x-full');
+
+            if (isOpen && !forceOpen) {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.getElementById('wishlist-drawer').classList.add('translate-x-full'); // Close other drawer
+            }
+        }
+
+        // Wishlist Control
+        function toggleWishlist() {
+            const drawer = document.getElementById('wishlist-drawer');
+            const overlay = document.getElementById('body-overlay');
+            const isOpen = !drawer.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('hidden');
+                document.getElementById('cart-drawer').classList.add('translate-x-full'); // Close other drawer
+            }
+        }
+
+        function toggleWishlistItem(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            const index = wishlist.indexOf(id);
+            if (index > -1) {
+                wishlist.splice(index, 1);
+                showToast(`${p.name} removed from Wishlist.`, 'info');
+            } else {
+                wishlist.push(id);
+                showToast(`${p.name} added to Wishlist!`);
+            }
+            saveState();
+            updateWishlistUI();
+            renderProducts();
+        }
+
+        function updateWishlistUI() {
+            const container = document.getElementById('wishlist-items-container');
+            container.innerHTML = "";
+
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center py-16">
+                        <i class="fa-regular fa-heart text-5xl text-slate-200 mb-4"></i>
+                        <h4 class="font-extrabold text-slate-800 text-base">Wishlist is Empty</h4>
+                        <p class="text-xs text-slate-400 max-w-[200px] mt-1">Tap hearts on cards to collect products here.</p>
+                    </div>
+                `;
+                document.getElementById('wishlist-badge').classList.add('scale-0');
+            } else {
+                document.getElementById('wishlist-badge').classList.remove('scale-0');
+                document.getElementById('wishlist-badge').innerText = wishlist.length;
+
+                wishlist.forEach((id) => {
+                    const p = products.find(prod => prod.id === id);
+                    if (!p) return;
+
+                    const row = document.createElement('div');
+                    row.className = "flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-100 relative group";
+                    row.innerHTML = `
+                        <img src="${p.image}" alt="" class="h-16 w-16 rounded-xl object-cover border bg-white shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs text-slate-850 truncate">${p.name}</h4>
+                            <span class="text-xs font-black text-slate-900 block mt-1">₹${p.sellingPrice.toLocaleString('en-IN')}</span>
+                            <button onclick="moveToBag(${p.id})" class="mt-2 text-[10px] bg-brand-600 hover:bg-brand-500 text-white font-extrabold px-3 py-1 rounded-md transition shadow-sm">Move to Bag</button>
+                        </div>
+                        <button onclick="toggleWishlistItem(${p.id})" class="text-slate-400 hover:text-rose-500 transition absolute right-3 top-3">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    `;
+                    container.appendChild(row);
+                });
+            }
+        }
+
+        function moveToBag(id) {
+            addToCartDirect(id);
+            toggleWishlistItem(id);
+        }
+
+        // Checkout & Place Order Logic
+        function proceedToCheckout() {
+            if (cart.length === 0) {
+                showToast("Please add items to your cart first!", 'info');
+                return;
+            }
+            toggleCart(); // Close Drawer
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('body-overlay').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            document.getElementById('body-overlay').classList.add('hidden');
+        }
+
+        function handlePlaceOrder(event) {
+            event.preventDefault();
+            
+            // Simulating Random Order ID Generation
+            const orderId = `TV-${Math.floor(100000 + Math.random() * 900000)}`;
+            
+            // Clean cart state after successful buy
+            cart = [];
+            appliedCoupon = null;
+            document.getElementById('coupon-input').value = "";
+            document.getElementById('coupon-message').classList.add('hidden');
+            saveState();
+            updateCartUI();
+
+            closeCheckoutModal();
+
+            // Display amazing confirmation dialog
+            alert(`🎉 Success! Your order has been placed.\nOrder ID: ${orderId}\nKeep note of this ID to track your parcel.`);
+            showToast("Order Placed Successfully!");
+        }
+
+        // Real Countdown Timer logic
+        function startCountdown() {
+            let hours = 4;
+            let minutes = 28;
+            let seconds = 54;
+
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                    if (minutes < 0) {
+                        minutes = 59;
+                        hours--;
+                        if (hours < 0) {
+                            hours = 24; // Reset
+                        }
+                    }
+                }
+                document.getElementById('countdown-hours').innerText = hours.toString().padStart(2, '0');
+                document.getElementById('countdown-mins').innerText = minutes.toString().padStart(2, '0');
+                document.getElementById('countdown-secs').innerText = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        // Overlay close clicking mechanism
+        document.getElementById('body-overlay').addEventListener('click', () => {
+            closeProductDetailModal();
+            document.getElementById('cart-drawer').classList.add('translate-x-full');
+            document.getElementById('wishlist-drawer').classList.add('translate-x-full');
+            closeCheckoutModal();
+            closeOrderTrackingModal();
+            closeAuthModal();
+            closePolicyModal();
+            document.getElementById('body-overlay').classList.add('hidden');
+        });
+
+        // Mobile Search Toggle
+        function toggleMobileSearch() {
+            const bar = document.getElementById('mobile-search-bar');
+            bar.classList.toggle('hidden');
+        }
+
+        // Order Tracking Dialog Controls
+        function openOrderTrackingModal() {
+            document.getElementById('tracking-modal').classList.remove('hidden');
+            document.getElementById('body-overlay').classList.remove('hidden');
+        }
+
+        function closeOrderTrackingModal() {
+            document.getElementById('tracking-modal').classList.add('hidden');
+            document.getElementById('body-overlay').classList.add('hidden');
+            document.getElementById('tracking-status-display').classList.add('hidden');
+            document.getElementById('tracking-order-id').value = "";
+        }
+
+        function handleTrackOrder() {
+            const val = document.getElementById('tracking-order-id').value;
+            if (val.trim() === "") {
+                alert("Please write a valid Order ID.");
+                return;
+            }
+            document.getElementById('tracking-status-display').classList.remove('hidden');
+        }
+
+        // User Auth Login Dialog
+        function openAuthModal() {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            document.getElementById('body-overlay').classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('body-overlay').classList.add('hidden');
+        }
+
+        function handleAuthLogin(event) {
+            event.preventDefault();
+            closeAuthModal();
+            showToast("Successfully logged inside TrendVault!");
+        }
+
+        // Newsletter processing
+        function handleNewsletter(event) {
+            event.preventDefault();
+            alert("Congratulations! You have joined TrendVault VIP updates letter.");
+            event.target.reset();
+        }
+
+        // Show Dynamic Policies inside unified single page architecture
+        function showPolicy(policyName) {
+            const titleEl = document.getElementById('policy-modal-title');
+            const contentEl = document.getElementById('policy-modal-content');
+            
+            titleEl.innerText = policyName;
+
+            let textHtml = "";
+
+            if (policyName === 'About Us') {
+                textHtml = `
+                    <p class="font-bold text-slate-800">TrendVault Online Shopping Marketplace</p>
+                    <p>Established in 2024, TrendVault represents a revolution in Indian lifestyle retailing. Our multi-category approach aggregates premier collections across Apparel, Electronics, Beauty, Home and Kids, all under a single premium platform.</p>
+                    <p>We work directly with reliable suppliers, validating premium fabrics, solid components, and authentic labels. TrendVault makes luxury affordable, secure, and fast.</p>
+                `;
+            } else if (policyName === 'Contact Us') {
+                textHtml = `
+                    <p>For urgent customer services, queries, returns processing, or legal consultations, kindly utilize the following desks:</p>
+                    <p><strong class="text-slate-800">Helpline:</strong> +91 1800 456 7890 (Toll-Free, 10 AM to 7 PM)</p>
+                    <p><strong class="text-slate-800">Support Mailbox:</strong> support@trendvault.in</p>
+                    <p><strong class="text-slate-800">Corporate Headquarters:</strong> Connaught Place, Block-G, New Delhi, India - 110001</p>
+                `;
+            } else if (policyName === 'Privacy Policy') {
+                textHtml = `
+                    <p>At TrendVault, accessible from trendvault.in, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by TrendVault and how we use it.</p>
+                    <p>We do not sell, rent, or lease your profile database to any third-party marketing firms. Your transaction details are fortified using industry-level SSL protocols.</p>
+                `;
+            } else if (policyName === 'Terms & Conditions') {
+                textHtml = `
+                    <p>By using our digital storefront, you signify compliance with standard Indian Cyber laws and e-commerce rules. Prices and listings are subject to real-time adjustments depending on vendor supply dynamics.</p>
+                    <p>Coupon codes are only applicable on valid checkout amounts and cannot be stacked with multiple external coupon files unless specified.</p>
+                `;
+            } else if (policyName === 'Shipping Policy') {
+                textHtml = `
+                    <p>We provide ultra-fast shipping networks spanning across 26,000+ PIN Codes in India.</p>
+                    <p><strong class="text-slate-800">Standard Delivery Fees:</strong> Free of charge for orders scaling above ₹499. Flat ₹50 shipping fee applied under this limit.</p>
+                    <p><strong class="text-slate-800">Standard Transit Cycles:</strong> Metro nodes receive packages within 2 days. Rest of India standard range spans 3 to 5 business days.</p>
+                `;
+            } else if (policyName === 'Return/Refund Policy') {
+                textHtml = `
+                    <p>TrendVault guarantees a hassle-free, secure 7-Day Return / Replacement window upon delivery receipt.</p>
+                    <p>Make sure items are returned in untorn original state, retaining brand labels, tags, and product boxes intact. Refunds are credited instantly inside source banks or UPI wallets following verification checks.</p>
+                `;
+            }
+
+            contentEl.innerHTML = textHtml;
+            document.getElementById('policy-modal').classList.remove('hidden');
+            document.getElementById('body-overlay').classList.remove('hidden');
+        }
+
+        function closePolicyModal() {
+            document.getElementById('policy-modal').classList.add('hidden');
+            document.getElementById('body-overlay').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
